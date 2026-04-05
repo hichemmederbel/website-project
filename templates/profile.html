@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+
+  <div class="profile-header">
+    <div class="profile-avatar">{{ user.name[0]|upper }}</div>
+    <div>
+      <h1 class="profile-name">{{ user.name }}</h1>
+      <p class="profile-role">{% if user.role == 'admin' %}Administrateur{% else %}Bénévole{% endif %}</p>
+      <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.2rem;">
+        {{ tasks|length }} tâche{{ 's' if tasks|length > 1 else '' }} inscrite{{ 's' if tasks|length > 1 else '' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2 class="section-title">Mes créneaux</h2>
+    <a href="{{ url_for('index') }}" class="btn btn-outline btn-sm">Voir d'autres tâches</a>
+  </div>
+
+  {% if not tasks %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>Vous n'êtes inscrit à aucune tâche pour le moment.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Parcourir les tâches</a>
+  </div>
+  {% else %}
+  <div class="tasks-grid">
+    {% for task in tasks %}
+    <article class="task-card assigned" id="my-task-{{ task.id }}">
+      <div class="task-header">
+        <h3 class="task-title">{{ task.title }}</h3>
+        <span class="badge badge-taken">Inscrit</span>
+      </div>
+
+      <div class="task-meta">
+        {% if task.date %}
+        <div class="task-meta-row">
+          <span>{{ task.date }}</span>
+        </div>
+        {% endif %}
+        <div class="task-meta-row">
+          <span>{{ task.start_time }} – {{ task.end_time }}</span>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('unassign') }}" style="margin-top: 0.5rem;">
+        <input type="hidden" name="task_id" value="{{ task.id }}">
+        <button type="submit" class="btn btn-danger btn-sm" id="profile-unassign-{{ task.id }}">Se désinscrire</button>
+      </form>
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

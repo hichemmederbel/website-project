@@ -1,0 +1,138 @@
+{% extends "layout.html" %}
+
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+
+  <!-- Banner -->
+  <div class="admin-banner">
+    <div class="admin-banner-icon">⚙️</div>
+    <div>
+      <h1>Tableau de bord Administration</h1>
+      <p>Gérez les créneaux du tournoi — créez, suivez et organisez les tâches bénévoles.</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.total }}</div>
+      <div class="stat-label">Tâches totales</div>
+    </div>
+    <div class="stat-card stat-ok">
+      <div class="stat-number">{{ stats.full }}</div>
+      <div class="stat-label">Complètes</div>
+    </div>
+    <div class="stat-card stat-warn">
+      <div class="stat-number">{{ stats.available }}</div>
+      <div class="stat-label">Avec places</div>
+    </div>
+  </div>
+
+  <!-- Formulaire d'ajout -->
+  <div class="add-task-card">
+    <h2>Nouvelle tâche</h2>
+
+    <form id="add-task-form" method="POST" action="{{ url_for('add_task') }}" novalidate>
+
+      <div class="form-group">
+        <label class="form-label" for="task-title">Intitulé de la tâche</label>
+        <input class="form-input" type="text" id="task-title" name="title"
+          placeholder="ex : Arbitrage Secteur 3 – Ronde 4-6">
+        <p class="form-error" id="task-title-error"></p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="task-date">Date</label>
+          <input class="form-input" type="date" id="task-date" name="date">
+          <p class="form-error" id="task-date-error"></p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="task-start">Heure de début</label>
+          <input class="form-input" type="time" id="task-start" name="start_time">
+          <p class="form-error" id="task-start-error"></p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="task-end">Heure de fin</label>
+          <input class="form-input" type="time" id="task-end" name="end_time">
+          <p class="form-error" id="task-end-error"></p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="task-max">Nb. de places</label>
+          <input class="form-input" type="number" id="task-max" name="max_volunteers" min="1" max="99" value="1">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="add-task-submit">
+        Ajouter la tâche
+      </button>
+
+    </form>
+  </div>
+
+  <!-- Tableau récapitulatif -->
+  <div class="section-header">
+    <h2 class="section-title">Toutes les tâches</h2>
+    <a href="{{ url_for('index') }}" class="btn btn-outline btn-sm">Vue publique</a>
+  </div>
+
+  <div class="table-card">
+    <div class="table-scroll">
+      {% if not tasks %}
+      <div class="empty-state" style="padding: 3rem 2rem;">
+        <div class="empty-icon">📋</div>
+        <p>Aucune tâche créée pour l'instant.</p>
+      </div>
+      {% else %}
+      <table role="table" aria-label="Liste des tâches du tournoi">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tâche</th>
+            <th>Date</th>
+            <th>Horaire</th>
+            <th>Places</th>
+            <th>Inscrits</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+          <tr id="admin-row-{{ task.id }}">
+            <td style="color: var(--text-muted); font-size: 0.8rem;">{{ task.id }}</td>
+            <td class="td-title">{{ task.title }}</td>
+            <td style="color: var(--text-secondary); white-space: nowrap;">{{ task.date or '—' }}</td>
+            <td style="color: var(--text-secondary); white-space: nowrap;">{{ task.start_time }} – {{ task.end_time }}
+            </td>
+            <td>
+              {% if task.is_full %}
+              <span class="badge badge-full">Complet</span>
+              {% else %}
+              <span class="badge badge-free">{{ task.volunteer_count }}/{{ task.max_volunteers }}</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if task.volunteer_names %}
+              <div style="font-size:0.82rem; color: var(--text-body);">{{ task.volunteer_names }}</div>
+              {% else %}
+              <span style="color: var(--text-muted);">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('delete_task') }}" class="delete-task-form">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit" class="btn btn-danger btn-sm" id="delete-{{ task.id }}">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block title %}Planning des Bénévoles{% endblock %}
+
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>♟ Planning des bénévoles</h1>
+    <p>Coordonnez les créneaux d'arbitrage, de buvette et d'installation lors du tournoi.</p>
+
+    <div class="stat-pills">
+      <div class="stat-pill"><strong>{{ tasks|length }}</strong> tâche{{ 's' if tasks|length > 1 else '' }} au total</div>
+      <div class="stat-pill"><strong>{{ tasks|selectattr('is_full')|list|length }}</strong> complète{{ 's' if tasks|selectattr('is_full')|list|length > 1 else '' }}</div>
+      <div class="stat-pill"><strong>{{ tasks|rejectattr('is_full')|list|length }}</strong> avec places disponibles</div>
+    </div>
+  </div>
+</div>
+
+<!--Task section -->
+<div class="container">
+
+  <div class="section-header">
+    <h2 class="section-title">Créneaux disponibles</h2>
+    <div class="filter-bar" role="group" aria-label="Filtrer les tâches">
+      <span class="filter-label">Filtrer :</span>
+      <button class="filter-btn active" data-filter="all"       id="filter-all">Tous</button>
+      <button class="filter-btn"        data-filter="available" id="filter-available">Places disponibles</button>
+      <button class="filter-btn"        data-filter="full"      id="filter-full">Complets</button>
+    </div>
+  </div>
+
+  {% if not tasks %}
+  <div class="empty-state">
+    <p>Aucune tâche n'a encore été créée.</p>
+    {% if user and user.role == 'admin' %}
+    <a href="{{ url_for('admin') }}" class="btn btn-primary">Créer des tâches</a>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="tasks-grid">
+    {% for task in tasks %}
+    {% set is_full = task.is_full %}
+    {% set is_mine = task.id in user_task_ids %}
+    {% set spots_left = task.max_volunteers - task.volunteer_count %}
+    {% set fill_pct = ((task.volunteer_count * 100) // task.max_volunteers) if task.max_volunteers > 0 else 0 %}
+
+    <article class="task-card {{ 'full' if is_full else '' }}"
+             data-status="{{ 'full' if is_full else 'available' }}"
+             id="task-{{ task.id }}">
+
+      <div class="task-header">
+        <h3 class="task-title">{{ task.title }}</h3>
+        {% if is_full %}
+          <span class="badge badge-full">Complet</span>
+        {% else %}
+          <span class="badge badge-free">{{ spots_left }} place{{ 's' if spots_left > 1 else '' }}</span>
+        {% endif %}
+      </div>
+
+      <div class="task-meta">
+        {% if task.date %}
+        <div class="task-meta-row">
+          <span>{{ task.date }}</span>
+        </div>
+        {% endif %}
+        <div class="task-meta-row">
+          <span>{{ task.start_time }} – {{ task.end_time }}</span>
+        </div>
+      </div>
+
+      <!-- Barre de capacité -->
+      <div class="task-capacity">
+        <span>{{ task.volunteer_count }}/{{ task.max_volunteers }} bénévole{{ 's' if task.max_volunteers > 1 else '' }}</span>
+        <div class="capacity-bar">
+          <div class="capacity-bar-fill {{ 'bar-full' if is_full else '' }}"
+               style="width: {{ fill_pct }}%"></div>
+        </div>
+      </div>
+
+      {% if task.volunteer_names %}
+      <div class="task-volunteers-list">{{ task.volunteer_names }}</div>
+      {% endif %}
+
+      <!-- Actions -->
+      {% if user %}
+        {% if is_mine %}
+        <form method="POST" action="{{ url_for('unassign') }}">
+          <input type="hidden" name="task_id" value="{{ task.id }}">
+          <button type="submit" class="btn btn-outline btn-sm" id="unassign-{{ task.id }}">Se désinscrire</button>
+        </form>
+        {% elif not is_full %}
+        <form method="POST" action="{{ url_for('assign') }}">
+          <input type="hidden" name="task_id" value="{{ task.id }}">
+          <button type="submit" class="btn btn-primary btn-sm" id="assign-{{ task.id }}">S'inscrire</button>
+        </form>
+        {% else %}
+        <button class="btn btn-outline btn-sm" disabled style="opacity:0.45; cursor:not-allowed;">Complet</button>
+        {% endif %}
+      {% else %}
+        {% if not is_full %}
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Connexion pour s'inscrire</a>
+        {% endif %}
+      {% endif %}
+
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

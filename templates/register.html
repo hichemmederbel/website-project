@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}Créer un compte{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <div class="form-card">
+    <h1 class="form-title">Créer un compte</h1>
+    <p class="form-subtitle">Rejoignez l'équipe de bénévoles</p>
+
+    <form id="register-form" method="POST" action="{{ url_for('register') }}" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="reg-name">Nom d'utilisateur</label>
+        <input class="form-input" type="text" id="reg-name" name="name" placeholder="Votre prénom ou pseudonyme"
+          autocomplete="username" value="{{ request.form.get('name', '') }}">
+        <p class="form-error" id="reg-name-error"></p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Mot de passe</label>
+        <input class="form-input" type="password" id="reg-password" name="password"
+          placeholder="Choisissez un mot de passe" autocomplete="new-password">
+        <p class="form-error" id="reg-password-error"></p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-confirm">Confirmer le mot de passe</label>
+        <input class="form-input" type="password" id="reg-confirm" name="confirm"
+          placeholder="Retapez votre mot de passe" autocomplete="new-password">
+        <p class="form-error" id="reg-confirm-error"></p>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="register-submit">
+        inscription
+      </button>
+    </form>
+
+    <p class="form-footer">
+      Déjà un compte ?
+      <a href="{{ url_for('login') }}">Se connecter</a>
+    </p>
+  </div>
+</section>
+{% endblock %}
