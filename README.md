@@ -42,7 +42,7 @@ Un compte admin est créé automatiquement au premier démarrage :
 | Nom d'utilisateur | `admin` |
 | Mot de passe | `admin123` |
 
-> ⚠️ **Changez ce mot de passe** avant tout déploiement en production.
+> **Changez ce mot de passe** avant tout déploiement en production.
 
 ### Créer un nouveau compte admin
 
@@ -176,4 +176,4 @@ website-project/
 
 ## Auteur
 
-Mederbel Hichem
+### Mederbel Hichem
