@@ -41,14 +41,14 @@ def init_db():
         );
     """)
 
-    # ── Migrations colonnes ──────────────────────────────────────────────
+    # Migrations colonnes
     existing_cols = [r[1] for r in cur.execute("PRAGMA table_info(task)").fetchall()]
     if 'date' not in existing_cols:
         cur.execute("ALTER TABLE task ADD COLUMN date TEXT NOT NULL DEFAULT ''")
     if 'max_volunteers' not in existing_cols:
         cur.execute("ALTER TABLE task ADD COLUMN max_volunteers INTEGER NOT NULL DEFAULT 1")
 
-    # ── Migration volunteer_id → task_assignment ─────────────────────────
+    # Migration volunteer_id → task_assignment
     if 'volunteer_id' in existing_cols:
         legacy = cur.execute(
             "SELECT id, volunteer_id FROM task WHERE volunteer_id IS NOT NULL"
@@ -60,7 +60,7 @@ def init_db():
             )
         cur.execute("UPDATE task SET volunteer_id = NULL")
 
-    # ── Admin par défaut ─────────────────────────────────────────────────
+    # Admin par défaut
     cur.execute("SELECT COUNT(*) FROM user WHERE role = 'admin'")
     if cur.fetchone()[0] == 0:
         cur.execute(
@@ -68,7 +68,7 @@ def init_db():
             ("admin", "admin123"),
         )
 
-    # ── Tâches de démonstration ──────────────────────────────────────────
+    #  Tâches de démonstration
     cur.execute("SELECT COUNT(*) FROM task")
     if cur.fetchone()[0] == 0:
         demo_tasks = [
@@ -94,7 +94,7 @@ def init_db():
     conn.close()
 
 
-# ── DAO ──────────────────────────────────────────────────────────────────
+# DAO
 
 def login(name: str, password: str) -> int:
     conn = get_connection()

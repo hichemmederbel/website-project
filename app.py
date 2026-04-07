@@ -8,9 +8,7 @@ app.secret_key = "chess_volunteers_secret_key_2024"
 db.init_db()
 
 
-# ──────────────────────────────────────────────
 # Helpers
-# ──────────────────────────────────────────────
 
 def get_current_user():
     """Retourne le dict de l'utilisateur connecté ou None."""
@@ -37,9 +35,7 @@ def require_admin():
     return None
 
 
-# ──────────────────────────────────────────────
 # Routes générales
-# ──────────────────────────────────────────────
 
 @app.route("/")
 def index():
@@ -51,9 +47,8 @@ def index():
     return render_template("index.html", tasks=tasks, user=user, user_task_ids=user_task_ids)
 
 
-# ──────────────────────────────────────────────
+
 # Routes d'authentification
-# ──────────────────────────────────────────────
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -117,9 +112,8 @@ def logout():
     return redirect(url_for("index"))
 
 
-# ──────────────────────────────────────────────
+
 # Routes bénévoles
-# ──────────────────────────────────────────────
 
 @app.route("/profile")
 def profile():
